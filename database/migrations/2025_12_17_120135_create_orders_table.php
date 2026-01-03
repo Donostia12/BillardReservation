@@ -18,7 +18,8 @@ return new class extends Migration
             $table->dateTime('start_time');
             $table->dateTime('end_time')->nullable();
             $table->decimal('amount', 10, 2)->default(0);
-            $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
+            $table->string('payment_proof')->nullable();
+            $table->enum('status', ['pending', 'process', 'active', 'completed', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

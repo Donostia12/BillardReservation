@@ -14,11 +14,13 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@billard.com',
-            'role' => 'admin',
-            'password' => Hash::make('password'),
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@billard.com'],
+            [
+                'name' => 'Admin',
+                'role' => 'admin',
+                'password' => Hash::make('password'),
+            ]
+        );
     }
 }

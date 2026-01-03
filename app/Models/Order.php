@@ -13,6 +13,7 @@ class Order extends Model
         'end_time',
         'amount',
         'status',
+        'payment_proof',
     ];
 
     public function user()

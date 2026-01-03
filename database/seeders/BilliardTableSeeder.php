@@ -13,7 +13,10 @@ class BilliardTableSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($i = 1; $i <= 30; $i++) {
+        for ($i = 1; $i <= 31; $i++) {
+            if ($i == 13) {
+                continue;
+            }
             BilliardTable::create([
                 'number' => $i,
                 'status' => 'available',
