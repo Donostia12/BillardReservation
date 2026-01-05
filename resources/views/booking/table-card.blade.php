@@ -44,6 +44,30 @@ $isAvailable = $status === 'available';
         {{ str_pad($id, 2, '0', STR_PAD_LEFT) }}
     </div>
 
+    @if(($status === 'pending' || $status === 'reserved') && isset($table->expires_at))
+    <div x-data="{
+        expires: {{ \Carbon\Carbon::parse($table->expires_at)->timestamp * 1000 }},
+        remaining: '',
+        init() {
+            this.tick();
+            setInterval(() => this.tick(), 1000);
+        },
+        tick() {
+            const now = new Date().getTime();
+            const distance = this.expires - now;
+            if (distance < 0) {
+                this.remaining = '0:00';
+            } else {
+                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                this.remaining = m + ':' + (s < 10 ? '0' : '') + s;
+            }
+        }
+    }" x-init="init()" class="absolute top-2 right-2 {{ $status === 'reserved' ? 'bg-blue-500/90 text-white' : 'bg-yellow-500/90 text-black' }} px-2 py-1 rounded text-xs font-mono font-bold shadow-lg z-20">
+        <span x-text="remaining"></span>
+    </div>
+    @endif
+
     <div class="absolute bottom-3 right-3">
         <div class="w-3 h-3 rounded-full {{ $indicatorColor }} shadow-[0_0_8px_rgba(255,255,255,0.5)] animate-pulse"></div>
     </div>

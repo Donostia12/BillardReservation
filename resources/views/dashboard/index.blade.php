@@ -77,9 +77,55 @@
                                     <div class="flex items-center gap-2 mb-1">
                                         <h3 class="font-semibold text-lg">Table {{ $order->billiardTable->number }}</h3>
                                         @if($order->status == 'process')
-                                        <span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 text-xs rounded-full font-bold border border-yellow-500/20">PROCESS</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 bg-yellow-500/10 text-yellow-400 text-xs rounded-full font-bold border border-yellow-500/20">PROCESS</span>
+                                            @if($order->expires_at)
+                                            <span x-data="{
+                                                expires: {{ $order->expires_at->timestamp * 1000 }},
+                                                remaining: '',
+                                                init() {
+                                                    this.tick();
+                                                    setInterval(() => this.tick(), 1000);
+                                                },
+                                                tick() {
+                                                    const now = new Date().getTime();
+                                                    const distance = this.expires - now;
+                                                    if (distance < 0) {
+                                                        this.remaining = 'Expired';
+                                                    } else {
+                                                        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                        const s = Math.floor((distance % (1000 * 60)) / 1000);
+                                                        this.remaining = m + ':' + (s < 10 ? '0' : '') + s;
+                                                    }
+                                                }
+                                            }" x-init="init()" class="text-xs font-mono text-yellow-500" x-text="remaining"></span>
+                                            @endif
+                                        </div>
                                         @elseif($order->status == 'pending')
-                                        <span class="px-2 py-0.5 bg-gray-500/10 text-gray-400 text-xs rounded-full font-bold border border-gray-500/20">PENDING</span>
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 bg-gray-500/10 text-gray-400 text-xs rounded-full font-bold border border-gray-500/20">PENDING</span>
+                                            @if($order->expires_at)
+                                            <span x-data="{
+                                                expires: {{ $order->expires_at->timestamp * 1000 }},
+                                                remaining: '',
+                                                init() {
+                                                    this.tick();
+                                                    setInterval(() => this.tick(), 1000);
+                                                },
+                                                tick() {
+                                                    const now = new Date().getTime();
+                                                    const distance = this.expires - now;
+                                                    if (distance < 0) {
+                                                        this.remaining = 'Expired';
+                                                    } else {
+                                                        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                        const s = Math.floor((distance % (1000 * 60)) / 1000);
+                                                        this.remaining = m + ':' + (s < 10 ? '0' : '') + s;
+                                                    }
+                                                }
+                                            }" x-init="init()" class="text-xs font-mono text-yellow-500" x-text="remaining"></span>
+                                            @endif
+                                        </div>
                                         @else
                                         <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-xs rounded-full font-bold border border-emerald-500/20">ACTIVE</span>
                                         @endif

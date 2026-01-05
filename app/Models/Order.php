@@ -14,6 +14,13 @@ class Order extends Model
         'amount',
         'status',
         'payment_proof',
+        'expires_at',
+    ];
+
+    protected $casts = [
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
+        'expires_at' => 'datetime',
     ];
 
     public function user()
