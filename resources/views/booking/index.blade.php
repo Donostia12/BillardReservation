@@ -17,8 +17,13 @@
 <body class="bg-slate-950 text-white antialiased">
     @include('home.header')
 
-    <main class="pt-24 pb-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main class="relative pt-24 pb-12 min-h-screen overflow-hidden">
+        <!-- Background Image with Overlay -->
+        <div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('Images/background.webp') }}');">
+            <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 opacity-90"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h1 class="text-4xl font-bold text-white mb-4">Select Your Table</h1>
                 <p class="text-slate-400">Please refresh to update availability.</p>

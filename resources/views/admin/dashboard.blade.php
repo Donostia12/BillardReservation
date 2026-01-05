@@ -1,31 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard - Billard Reservation</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Outfit', sans-serif; }
+        body {
+            font-family: 'Outfit', sans-serif;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-slate-800 antialiased font-sans">
 
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50">
+<body class="bg-slate-950 text-white antialiased" x-data="adminDashboard()">
+
+    <nav class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex">
-                    <div class="flex-shrink-0 flex items-center gap-2">
-                         <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-bold">B</div>
-                        <span class="text-xl font-bold text-gray-800">Billiard Admin</span>
-                    </div>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-bold text-xl">A</div>
+                    <span class="text-xl font-bold">Admin Dashboard</span>
                 </div>
                 <div class="flex items-center gap-4">
-                     <span class="text-sm text-gray-500 hidden sm:block">Welcome, {{ Auth::user()->name }}</span>
+                    <span class="text-sm text-slate-400 hidden sm:block">{{ Auth::user()->name }}</span>
                     <form action="/logout" method="POST">
                         @csrf
-                        <button type="submit" class="text-sm text-red-600 hover:text-red-800 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">Logout</button>
+                        <button type="submit" class="text-sm text-red-400 hover:text-red-300 font-medium px-4 py-2 rounded-lg hover:bg-red-500/10 transition-colors">Logout</button>
                     </form>
                 </div>
             </div>
@@ -34,115 +38,242 @@
 
     <main class="py-10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             <!-- Header & Stats -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h1 class="text-2xl font-bold text-gray-900">Table Management</h1>
-                    <p class="text-gray-500 text-sm mt-1">Overview of all billiard tables status.</p>
-                </div>
-                
-                <div class="flex flex-wrap gap-3">
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold mb-2">Table Management</h1>
+                <p class="text-slate-400">Real-time overview of all billiard tables</p>
+
+                <div class="flex flex-wrap gap-3 mt-4">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
                         <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                        <span class="text-xs font-semibold">Available: {{ $tables->where('status', 'available')->count() }}</span>
+                        <span class="text-sm font-semibold text-emerald-400">Available: {{ $tables->where('status', 'available')->count() }}</span>
                     </div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
-                        <div class="w-2 h-2 rounded-full bg-blue-500"></div>
-                        <span class="text-xs font-semibold">Reserved: {{ $tables->where('status', 'reserved')->count() }}</span>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
+                        <div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+                        <span class="text-sm font-semibold text-yellow-400">Pending: {{ $tables->where('status', 'pending')->count() }}</span>
                     </div>
-                    <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 text-red-800 border border-red-200">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        <span class="text-sm font-semibold text-blue-400">Reserved: {{ $tables->where('status', 'reserved')->count() }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
                         <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                        <span class="text-xs font-semibold">Used: {{ $tables->where('status', 'used')->count() }}</span>
+                        <span class="text-sm font-semibold text-red-400">In Use: {{ $tables->where('status', 'used')->count() }}</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Tables Grid -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                @foreach($tables as $table)
-                    @php
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <!-- Tables Grid -->
+                <div class="xl:col-span-2">
+                    <h2 class="text-xl font-semibold mb-4">Tables Status</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        @foreach($tables as $table)
+                        @php
                         $status = $table->status;
-                        
-                        // Define styles based on status
-                        $colors = match($status) {
-                            'available' => [
-                                'card' => 'bg-white border-emerald-200 hover:border-emerald-400 hover:shadow-emerald-100',
-                                'text' => 'text-emerald-600',
-                                'bg_indicator' => 'bg-emerald-500',
-                                'felt' => 'bg-slate-800',
-                                'overlay' => 'bg-emerald-500/10'
-                            ],
-                            'used' => [
-                                'card' => 'bg-white border-red-200 hover:border-red-400 hover:shadow-red-100',
-                                'text' => 'text-red-600',
-                                'bg_indicator' => 'bg-red-500',
-                                'felt' => 'bg-slate-800',
-                                'overlay' => 'bg-red-500/10'
-                            ],
-                            'reserved' => [
-                                'card' => 'bg-white border-blue-200 hover:border-blue-400 hover:shadow-blue-100',
-                                'text' => 'text-blue-600',
-                                'bg_indicator' => 'bg-blue-500',
-                                'felt' => 'bg-slate-800',
-                                'overlay' => 'bg-blue-500/10'
-                            ],
-                            default => [
-                                'card' => 'bg-white border-gray-200',
-                                'text' => 'text-gray-600',
-                                'bg_indicator' => 'bg-gray-500',
-                                'felt' => 'bg-slate-800',
-                                'overlay' => 'bg-gray-500/10'
-                            ]
-                        };
-                    @endphp
+                        $colors = [
+                        'available' => ['card' => 'bg-emerald-500/10 border-emerald-500/30', 'text' => 'text-emerald-400', 'dot' => 'bg-emerald-500'],
+                        'pending' => ['card' => 'bg-yellow-500/10 border-yellow-500/30', 'text' => 'text-yellow-400', 'dot' => 'bg-yellow-500'],
+                        'reserved' => ['card' => 'bg-blue-500/10 border-blue-500/30', 'text' => 'text-blue-400', 'dot' => 'bg-blue-500'],
+                        'used' => ['card' => 'bg-red-500/10 border-red-500/30', 'text' => 'text-red-400', 'dot' => 'bg-red-500'],
+                        ];
+                        $color = $colors[$status] ?? $colors['available'];
+                        @endphp
 
-                    <div class="relative group {{ $colors['card'] }} border rounded-2xl p-4 transition-all duration-300 shadow-sm hover:shadow-lg flex flex-col items-center">
-                        
-                        <!-- Table Graphic -->
-                        <div class="w-full aspect-[4/3] relative flex items-center justify-center mb-3">
-                            <div class="w-24 h-14 {{ $colors['felt'] }} rounded-lg shadow-inner border border-slate-700 relative overflow-hidden transform group-hover:scale-110 transition-transform duration-300">
-                                <!-- Status Overlay -->
-                                <div class="absolute inset-0 {{ $colors['overlay'] }}"></div>
-                                <div class="absolute inset-x-4 top-0 h-full border-x border-dashed border-white/10"></div>
-                                
-                                <!-- Billiard Balls (Simple representation) -->
-                                @if($status === 'used')
-                                    <div class="absolute top-1/2 left-1/3 w-1.5 h-1.5 bg-white rounded-full shadow-sm"></div>
-                                    <div class="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-yellow-400 rounded-full shadow-sm"></div>
-                                    <div class="absolute top-2/3 left-1/2 w-1.5 h-1.5 bg-red-600 rounded-full shadow-sm"></div>
-                                @endif
+                        <div class="relative {{ $color['card'] }} border rounded-xl p-4 flex flex-col items-center">
+                            <div class="w-full aspect-[4/3] relative flex items-center justify-center mb-2">
+                                <img src="{{ asset('Images/table.png') }}" alt="Table" class="w-full h-full object-contain opacity-80">
                             </div>
-                            
-                            <!-- Status Pulsing Dot -->
-                            <div class="absolute bottom-2 right-4">
-                                <span class="flex h-3 w-3">
-                                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full {{ $colors['bg_indicator'] }} opacity-75"></span>
-                                  <span class="relative inline-flex rounded-full h-3 w-3 {{ $colors['bg_indicator'] }}"></span>
-                                </span>
+
+                            <!-- Timer -->
+                            @if(($status === 'pending' || $status === 'reserved') && isset($table->expires_at))
+                            <div x-data="{
+                                    expires: {{ \Carbon\Carbon::parse($table->expires_at)->timestamp * 1000 }},
+                                    remaining: '',
+                                    init() {
+                                        this.tick();
+                                        setInterval(() => this.tick(), 1000);
+                                    },
+                                    tick() {
+                                        const now = new Date().getTime();
+                                        const distance = this.expires - now;
+                                        if (distance < 0) {
+                                            this.remaining = '0:00';
+                                        } else {
+                                            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                            const s = Math.floor((distance % (1000 * 60)) / 1000);
+                                            this.remaining = m + ':' + (s < 10 ? '0' : '') + s;
+                                        }
+                                    }
+                                }" x-init="init()" class="absolute top-2 right-2 {{ $status === 'reserved' ? 'bg-blue-500 text-white' : 'bg-yellow-500 text-black' }} px-2 py-1 rounded text-xs font-mono font-bold shadow-lg">
+                                <span x-text="remaining"></span>
+                            </div>
+                            @endif
+
+                            <!-- Table Number -->
+                            <h3 class="text-lg font-bold">{{ str_pad($table->number, 2, '0', STR_PAD_LEFT) }}</h3>
+                            <p class="text-xs font-medium uppercase {{ $color['text'] }} mt-1">{{ ucfirst($status) }}</p>
+
+                            <!-- Status Dot -->
+                            <div class="absolute bottom-2 right-2">
+                                <div class="w-2 h-2 rounded-full {{ $color['dot'] }} {{ in_array($status, ['pending', 'reserved']) ? 'animate-pulse' : '' }}"></div>
                             </div>
                         </div>
+                        @endforeach
+                    </div>
+                </div>
 
-                        <!-- Table Info -->
-                        <div class="w-full text-center">
-                            <h3 class="text-lg font-bold text-gray-800">Table {{ str_pad($table->number, 2, '0', STR_PAD_LEFT) }}</h3>
-                            <p class="text-xs font-medium uppercase tracking-wider mt-1 {{ $colors['text'] }}">
-                                {{ ucfirst($status) }}
-                            </p>
-                        </div>
+                <!-- Orders Needing Verification -->
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold">Pending Verification</h2>
+                        <span class="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold" x-text="orderCount">{{ $pendingOrders->count() }}</span>
+                    </div>
 
-                        <!-- Action Overlay (Edit Placeholder) -->
-                        <div class="absolute inset-x-0 bottom-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-                             <button class="w-full py-2 rounded-lg bg-gray-900 text-white text-sm font-medium hover:bg-gray-800 transition-colors shadow-lg">
-                                Manage
-                            </button>
+                    <div class="space-y-3 max-h-[600px] overflow-y-auto">
+                        <template x-for="order in orders" :key="order.id">
+                            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h3 class="font-bold text-lg">Table <span x-text="String(order.table_number).padStart(2, '0')"></span></h3>
+                                        <p class="text-xs text-slate-400" x-text="order.user_name"></p>
+                                    </div>
+                                    <span class="px-2 py-1 text-xs rounded-full font-bold"
+                                        :class="order.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'"
+                                        x-text="order.status.toUpperCase()"></span>
+                                </div>
+
+                                <!-- Timer -->
+                                <div x-show="order.expires_at" class="mb-3">
+                                    <div x-data="{
+                                        expires: order.expires_at * 1000,
+                                        remaining: '',
+                                        init() {
+                                            this.tick();
+                                            setInterval(() => this.tick(), 1000);
+                                        },
+                                        tick() {
+                                            const now = new Date().getTime();
+                                            const distance = this.expires - now;
+                                            if (distance < 0) {
+                                                this.remaining = 'Expired';
+                                            } else {
+                                                const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                const s = Math.floor((distance % (1000 * 60)) / 1000);
+                                                this.remaining = m + ':' + (s < 10 ? '0' : '') + s;
+                                            }
+                                        }
+                                    }" x-init="init()" class="text-sm text-slate-400">
+                                        Time Left: <span class="font-mono font-bold text-yellow-500" x-text="remaining"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Payment Proof -->
+                                <div x-show="order.payment_proof && order.status === 'process'" class="mb-3">
+                                    <img :src="order.payment_proof" alt="Payment Proof" class="w-full h-32 object-cover rounded-lg border border-slate-700">
+                                </div>
+
+                                <div class="flex gap-2 text-sm">
+                                    <span class="text-slate-400">Amount:</span>
+                                    <span class="font-bold text-emerald-400" x-text="'Rp ' + order.amount.toLocaleString('id-ID')"></span>
+                                </div>
+
+                                <!-- Actions for Process orders -->
+                                <template x-if="order.status === 'process'">
+                                    <div class="flex gap-2 mt-3">
+                                        <form :action="`/admin/orders/${order.id}/approve`" method="POST" class="flex-1">
+                                            @csrf
+                                            <button type="submit" class="w-full px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold text-sm transition-colors">Approve</button>
+                                        </form>
+                                        <form :action="`/admin/orders/${order.id}/reject`" method="POST" class="flex-1">
+                                            @csrf
+                                            <button type="submit" class="w-full px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold text-sm transition-colors">Reject</button>
+                                        </form>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+
+                        <div x-show="orderCount === 0" class="text-center text-slate-500 py-12">
+                            No pending orders
                         </div>
                     </div>
-                @endforeach
+                </div>
             </div>
-            
         </div>
     </main>
 
+    <!-- Notification Sound -->
+    <audio id="notificationSound" src="{{ asset('notif/notif.mp3') }}" preload="auto"></audio>
+    <script>
+        function adminDashboard() {
+            return {
+                orders: @json($ordersData),
+                orderCount: {{ $pendingOrders->count() }},
+                previousCount: {{ $pendingOrders->count() }},
+
+                init() {
+                    // Poll every 10 seconds
+                    setInterval(() => this.checkForNewOrders(), 10000);
+                },
+
+                async checkForNewOrders() {
+                    try {
+                        const response = await fetch('/api/admin/pending-orders');
+                        const data = await response.json();
+
+                        let shouldNotify = false;
+                        let notificationMessage = '';
+
+                        // Check if new orders arrived
+                        if (data.count > this.previousCount) {
+                            shouldNotify = true;
+                            notificationMessage = `${data.count - this.previousCount} new order(s) pending verification`;
+                        }
+                        // Check if any order changed from pending to process
+                        else if (data.count === this.previousCount && this.orders.length > 0) {
+                            const oldPendingCount = this.orders.filter(o => o.status === 'pending').length;
+                            const newPendingCount = data.orders.filter(o => o.status === 'pending').length;
+
+                            if (newPendingCount < oldPendingCount) {
+                                shouldNotify = true;
+                                notificationMessage = 'Order payment proof uploaded! Ready for verification';
+                            }
+                        }
+
+                        if (shouldNotify) {
+                            // Play notification sound
+                            const audio = document.getElementById('notificationSound');
+                            audio.play().catch(e => console.log('Audio play failed:', e));
+
+                            // Show browser notification
+                            if ('Notification' in window && Notification.permission === 'granted') {
+                                new Notification('Admin Alert!', {
+                                    body: notificationMessage,
+                                    icon: '/Images/table.png'
+                                });
+                            }
+                        }
+
+                        this.orders = data.orders;
+                        this.previousCount = this.orderCount;
+                        this.orderCount = data.count;
+                    } catch (error) {
+                        console.error('Failed to fetch pending orders:', error);
+                    }
+                },
+
+                mounted() {
+                    // Request notification permission
+                    if ('Notification' in window && Notification.permission === 'default') {
+                        Notification.requestPermission();
+                    }
+                }
+            }
+        }
+    </script>
+
 </body>
+
 </html>

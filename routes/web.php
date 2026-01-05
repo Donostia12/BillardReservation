@@ -40,9 +40,13 @@ Route::middleware('auth')->group(function () {
 
     // Admin Routes
     Route::middleware(IsAdmin::class)->prefix('admin')->group(function () {
-        Route::get('/dashboard', function () {
-            $tables = BilliardTable::all();
-            return view('admin.dashboard', compact('tables'));
-        })->name('admin.dashboard');
+        Route::get('/dashboard', [App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::post('/orders/{order}/approve', [App\Http\Controllers\AdminController::class, 'approveOrder'])->name('admin.orders.approve');
+        Route::post('/orders/{order}/reject', [App\Http\Controllers\AdminController::class, 'rejectOrder'])->name('admin.orders.reject');
+    });
+
+    // Admin API Routes
+    Route::middleware(IsAdmin::class)->prefix('api/admin')->group(function () {
+        Route::get('/pending-orders', [App\Http\Controllers\AdminController::class, 'getPendingOrders']);
     });
 });

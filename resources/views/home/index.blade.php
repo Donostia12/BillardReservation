@@ -24,7 +24,7 @@
         <!-- Hero Section -->
         <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
             <!-- Dynamic Background -->
-            <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat" style="background-image: url('{{ asset('Images/background.webp') }}');">
                 <div class="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 opacity-90">
                 </div>
                 <!-- Decorative Elements -->
